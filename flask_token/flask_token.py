@@ -4,19 +4,34 @@
 """flask-token: 快速生成API认证令牌"""
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app, jsonify
+from flask import current_app, request
+from flask.ext.httpauth import HTTPBasicAuth, HTTPDigestAuth
 from functools import wraps
 
 
-class Token(object)
+class Token(HTTPBasicAuth, HTTPDigestAuth):
 
     def __init__(self, app=None):
+        super(Token, self).__init__()
         self.app = app
         if app is not None:
             self.init_app(app)
 
+        def default_get_password(username):
+            return None
+
+        def default_auth_error():
+            return '禁止访问,我是大魔王,哈哈哈哈哈哈哈'
+
+        self.realm = "Authentication Required"
+        self.get_password(default_get_password)
+
     def init_app(self, app):
         pass
+
+    def get_password(self, f):
+        self.get_password_callback = f
+        return f
 
     def login_required(self, f):
         @wraps(f)

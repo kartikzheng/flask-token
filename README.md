@@ -32,7 +32,19 @@ Flask-Token
         token = g.user.generate_token(3600)
         return jsonify({'token':token.decode('ascii')})
 
-### 4. 获取令牌
+### 4. 实现基于token的验证函数
+
+    @token.verify_password
+    def verify_password(username_or_token, password):
+        user = User.verify_token(username_or_token)
+        if not user:
+            user = User.query.filter_by(username = username_or_token).first()
+            if not user or not user.verify_password(password):
+                return False
+        g.user = user
+        return True
+
+### 5. 获取令牌
 
     在终端使用命令:
 
